@@ -1,0 +1,9 @@
+{
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "build",
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/admin", "dest": "/admin/index.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
