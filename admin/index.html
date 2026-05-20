@@ -35,7 +35,6 @@
   .btn-add { background: #7b5ea7; border: none; border-radius: 8px; color: #fff; font-size: 0.85rem; font-weight: 600; padding: 0.5rem 1.1rem; cursor: pointer; }
   .btn-add:hover { background: #9370c8; }
 
-  /* Stats */
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
   .stat-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 1rem 1.2rem; }
   .stat-label { font-size: 0.75rem; color: #666; margin-bottom: 0.3rem; }
@@ -43,7 +42,6 @@
   .stat-card.active .stat-value { color: #4caf50; }
   .stat-card.expired .stat-value { color: #f44336; }
 
-  /* Table */
   .table-wrap { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; overflow: hidden; }
   table { width: 100%; border-collapse: collapse; }
   thead tr { background: #111; }
@@ -58,7 +56,6 @@
   .btn-del:hover { background: rgba(244,67,54,0.12); border-color: #f44336; color: #ef5350; }
   .empty-row td { text-align: center; padding: 2rem; color: #555; font-size: 0.9rem; }
 
-  /* Modal */
   .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; }
   .modal { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.75rem; width: 100%; max-width: 400px; }
   .modal h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 1.25rem; }
@@ -73,7 +70,6 @@
   .btn-save:hover { background: #9370c8; }
   .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
 
-  /* Toast */
   #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.8rem 1.2rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; opacity: 0; transform: translateY(8px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; z-index: 200; }
   #toast.show { opacity: 1; transform: translateY(0); }
   #toast.success { background: #1e3a1e; border: 1px solid #4caf50; color: #66bb6a; }
@@ -85,7 +81,6 @@
 </head>
 <body>
 
-<!-- Login Screen -->
 <div id="login-screen">
   <div class="login-box">
     <img class="login-logo" src="../images/logo.png" alt="Logo" onerror="this.style.display='none'" />
@@ -97,7 +92,6 @@
   </div>
 </div>
 
-<!-- Dashboard -->
 <div id="dashboard">
   <div class="topbar">
     <div class="topbar-left">
@@ -109,38 +103,24 @@
   </div>
 
   <div class="main">
-    <!-- Stats -->
     <div class="stats">
       <div class="stat-card"><div class="stat-label">Total User</div><div class="stat-value" id="stat-total">—</div></div>
       <div class="stat-card active"><div class="stat-label">Aktif</div><div class="stat-value" id="stat-active">—</div></div>
       <div class="stat-card expired"><div class="stat-label">Expired</div><div class="stat-value" id="stat-expired">—</div></div>
     </div>
-
-    <!-- Table -->
     <div class="section-header">
       <div class="section-title">Daftar User</div>
       <button class="btn-add" onclick="openAddModal()">+ Tambah User</button>
     </div>
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Status</th>
-            <th>Expired</th>
-            <th class="hide-sm">Dibuat</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="user-tbody">
-          <tr class="empty-row"><td colspan="5">Memuat...</td></tr>
-        </tbody>
+        <thead><tr><th>Username</th><th>Status</th><th>Expired</th><th class="hide-sm">Dibuat</th><th></th></tr></thead>
+        <tbody id="user-tbody"><tr class="empty-row"><td colspan="5">Memuat...</td></tr></tbody>
       </table>
     </div>
   </div>
 </div>
 
-<!-- Add User Modal -->
 <div id="add-modal" class="modal-bg" style="display:none">
   <div class="modal">
     <h2>Tambah User Baru</h2>
@@ -213,8 +193,7 @@ function showDashboard() {
 
 function fmtDate(iso) {
   if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+  return new Date(iso).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
 }
 
 function isExpired(expiresAt) {
@@ -223,9 +202,7 @@ function isExpired(expiresAt) {
 
 async function loadUsers() {
   try {
-    const res = await fetch('/api/admin/users', {
-      headers: { 'Authorization': 'Bearer ' + adminToken }
-    });
+    const res = await fetch('/api/admin/users', { headers: { 'Authorization': 'Bearer ' + adminToken } });
     if (res.status === 401) { logout(); return; }
     const users = await res.json();
     const active = users.filter(u => u.is_active && !isExpired(u.expires_at)).length;
@@ -233,21 +210,14 @@ async function loadUsers() {
     document.getElementById('stat-total').textContent = users.length;
     document.getElementById('stat-active').textContent = active;
     document.getElementById('stat-expired').textContent = expired;
-
     const tbody = document.getElementById('user-tbody');
     if (!users.length) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Belum ada user. Klik "+ Tambah User" untuk mulai.</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Belum ada user. Klik "+Tambah User" untuk mulai.</td></tr>';
       return;
     }
     tbody.innerHTML = users.map(u => {
       const exp = isExpired(u.expires_at) || !u.is_active;
-      return `<tr>
-        <td><strong>${escHtml(u.username)}</strong></td>
-        <td><span class="badge ${exp ? 'expired' : 'active'}">${exp ? 'Expired' : 'Aktif'}</span></td>
-        <td>${fmtDate(u.expires_at)}</td>
-        <td class="hide-sm" style="color:#666">${fmtDate(u.created_at)}</td>
-        <td><button class="btn-del" onclick="deleteUser('${u.id}','${escHtml(u.username)}')">Hapus</button></td>
-      </tr>`;
+      return `<tr><td><strong>${escHtml(u.username)}</strong></td><td><span class="badge ${exp ? 'expired' : 'active'}">${exp ? 'Expired' : 'Aktif'}</span></td><td>${fmtDate(u.expires_at)}</td><td class="hide-sm" style="color:#666">${fmtDate(u.created_at)}</td><td><button class="btn-del" onclick="deleteUser('${u.id}','${escHtml(u.username)}')">Hapus</button></td></tr>`;
     }).join('');
   } catch (e) {
     document.getElementById('user-tbody').innerHTML = '<tr class="empty-row"><td colspan="5">Gagal memuat data</td></tr>';
@@ -261,17 +231,12 @@ function escHtml(s) {
 async function deleteUser(id, name) {
   if (!confirm(`Hapus user "${name}"?`)) return;
   try {
-    const res = await fetch('/api/admin/users?id=' + id, {
-      method: 'DELETE',
-      headers: { 'Authorization': 'Bearer ' + adminToken }
-    });
+    const res = await fetch('/api/admin/users?id=' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + adminToken } });
     if (res.status === 401) { logout(); return; }
     if (!res.ok) { showToast('Gagal menghapus user', 'error'); return; }
     showToast(`User "${name}" dihapus`);
     loadUsers();
-  } catch {
-    showToast('Gagal menghapus user', 'error');
-  }
+  } catch { showToast('Gagal menghapus user', 'error'); }
 }
 
 function openAddModal() {
@@ -283,9 +248,7 @@ function openAddModal() {
   setTimeout(() => document.getElementById('new-username').focus(), 50);
 }
 
-function closeAddModal() {
-  document.getElementById('add-modal').style.display = 'none';
-}
+function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
 
 async function saveUser() {
   const username = document.getElementById('new-username').value.trim();
@@ -294,13 +257,8 @@ async function saveUser() {
   const errEl = document.getElementById('add-error');
   const btn = document.getElementById('btn-save');
   errEl.style.display = 'none';
-  if (!username || !password) {
-    errEl.textContent = 'Username dan password harus diisi';
-    errEl.style.display = 'block';
-    return;
-  }
-  btn.disabled = true;
-  btn.textContent = 'Menyimpan...';
+  if (!username || !password) { errEl.textContent = 'Username dan password harus diisi'; errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Menyimpan...';
   try {
     const res = await fetch('/api/admin/users', {
       method: 'POST',
@@ -312,20 +270,11 @@ async function saveUser() {
     closeAddModal();
     showToast(`User "${username}" berhasil ditambahkan`);
     loadUsers();
-  } catch {
-    errEl.textContent = 'Tidak dapat terhubung ke server';
-    errEl.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Simpan';
-  }
+  } catch { errEl.textContent = 'Tidak dapat terhubung ke server'; errEl.style.display = 'block'; }
+  finally { btn.disabled = false; btn.textContent = 'Simpan'; }
 }
 
-document.getElementById('admin-pass').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doAdminLogin();
-});
-
-// Auto-login jika token masih valid
+document.getElementById('admin-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
 if (adminToken) showDashboard();
 </script>
 </body>
